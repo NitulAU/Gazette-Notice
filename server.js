@@ -1,5 +1,4 @@
 // server.js
-
 import http from 'http';
 import fs from 'fs';
 import fetch from 'node-fetch';
@@ -20,7 +19,7 @@ const server = http.createServer((req, res) => { // request listener function
     (async () => {
       const not = await fetch("https://www.thegazette.co.uk/all-notices/notice/data.json");//asynchronously fetches data from a remote JSON API
       const noticeData = await not.json();
-      const data = noticeData['entry'];
+      const data = noticeData;
       res.writeHead(200, {'Content-Type': 'application/json'});
       res.end(JSON.stringify(data));//sends it back to the client as a JSON response
     })();
