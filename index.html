@@ -2,20 +2,22 @@
 <html lang="en">
 <head>
   <title>Gazette Notice</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"> -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-  <!-- <link rel="stylesheet" href="style.css"> -->
+  <!-- <link rel="stylesheet" type="text/css"  href='/style.csss'> -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
   <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <style>
     body{
       background-image: linear-gradient(145deg,#fff,#41aae6d0);
     }
     h1, .notice-title{
-      color: red;
+      /* color: #FF0000; */
       text-transform: uppercase;
       font-family: 'Trispace', sans-serif;
     } 
@@ -24,30 +26,45 @@
       font-weight: 700;
       text-decoration: none;
     }
+    .box-container{
+      display: flex;
+      /* flex-wrap: wrap; */
+      flex-direction: column;
+      justify-content: center;
+      margin: 0 3rem;
+    }
     .header-bar{
       position: relative;
+      display: flex;
+      justify-content: space-between;
+      margin: 48px 0 38px ;
+      width: 100%;
+    }
+    .header-btn{
+      background-color: transparent;
+      border: 1px solid transparent;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .header-btn:hover{
+      background-color: #72bee934;
     }
     .page-btn{
-      position: absolute;
-      left: 10px;
-      align-self:flex-end;
       font-weight: bolder;
-    }
-    .page-btn span{
+      padding:10px 30px;
     }
     .next-btn{
-      position: absolute;
-      right: 10px;
-      align-self:flex-end;
-    }
-    .next-btn a{
-      color: rgb(4, 4, 46);
+      padding:10px 30px;
     }
     .notice-card{
       display: flex;
       flex-direction: column;
       border-top: 5px solid #41aae6;
-
+      padding:19px;
+      margin-bottom: 30px;
+      max-width: 33.33%;
+      min-width: 33.33%;
     }
     .notice-card:hover{
       border-top-color: transparent;
@@ -65,52 +82,92 @@
       font-size: medium;
       font-weight: 400;
       letter-spacing: 1.25px;
+      padding: 5px 0;
+      border-bottom: 2px solid #00000043;
+      margin-bottom: 5px;
     }
-    .notice-content{}
+    .all-cards{
+      display: flex;
+      flex-wrap: wrap;
+      /* margin: 0 auto; */
+    }
+    @media screen and (max-width: 600px) {
+      .header-bar{
+        margin-bottom: 38px ;
+      }
+      .notice-card{
+        max-width: 50%;
+        min-width: none;
+      }
+    }
+    @media screen and (max-width: 400px) {
+      .all-cards, .header-bar{
+        min-width: 300px;
+      }
+      .notice-card{
+        max-width: none;
+      }
+    }
   </style>
 </head>
 <body>
-  <main class="container">
-    <header class="d-flex justify-content-center mt-5 mb-4 mb-lg-5 header-bar">
-      <nav class="btn btn-outline-info page-btn px-3 py-1"><span>1</span>-<span>10</span></nav>
+  <main class="box-container">
+    <header class="header-bar">
+      <button class="header-btn page-btn"><span>1</span>-<span>10</span></button>
       <h1>Notices</h1> 
-      <button class="btn btn-outline-info next-btn px-3 py-1"><a href="#">next>></a></button>
+      <button class="header-btn next-btn" role="navigation">next>></button>
     </header>
     <article id="data-entry"></article>
   </main>
   <script>
-    const xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === XMLHttpRequest.DONE) {
-        if (xhr.status === 200) {
-          const data = JSON.parse(xhr.responseText);
-          const entry=data['entry'];
-          let card=`<div class="row">`;
-          entry.forEach((item) => {
-            // console.log(item.content);
-            card += '<section class="col-lg-3 col-md-4 col-sm-6 notice-card p-2 mb-3 mb-lg-5">';
-            card += `<header class="notice-title"><a href="${item.id}" class="notice-link">${item.title}</a></header>`;
-            card += `<nav class="notice-date">${formatDate(item.published)} </nav><hr>`;
-            card += `<section class="notice-content">${item.content}</section>`;
-            card += `</section>`;
-          });
-          card += '</main>';
-          document.getElementById('data-entry').innerHTML = card;
-        } else {
-          console.error('Error retrieving data');
+    axios.get('/notice')
+      .then(function (response) {
+        console.log(response.data);
+        const gazette_res=response.data;
+        if(gazette_res['entry']){
+          const entry=gazette_res['entry'];
+          // console.log(entry[1].published);
+          const element = document.getElementById('data-entry');
+          const htmlString = getCard(entry);
+          // Create a new range object & Set the start position of the range to the end of the element
+          const range = document.createRange();
+          range.setStartAfter(element);
+          // Parse the HTML string into a DocumentFragment
+          const fragment = range.createContextualFragment(htmlString);
+          // Add the fragment to the element's inner HTML
+          element.appendChild(fragment);
         }
-      }
-    };
-    xhr.open('GET', '/notice'); //sets up the request with the HTTP method "GET" and the URL "/notice".
-    xhr.send(); //sends the request to the server 
-    //XMLHttpRequest object is used to asynchronously communicate with the server and retrieve data. 
-    //Once the request is complete, the onreadystatechange event will be fired
+        else{
+          console.error('Error retrieving entries');
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    function getCard(entry){
+        let card=`<div class="all-cards">`;
+        entry.forEach((item) => {
+          // console.log(item);
+          card += '<div class="notice-card mb-lg-5">';
+          if(item.id && item.title)  
+            card += `<header class="notice-title"><h2><a href="${item.id}" class="notice-link">${item.title}</a></h2></header>`;
+          if(item.published)  
+            card += `<div name="publishedDate" class="notice-date"><time datetime="${item.published}">${formatDate(item.published)} </time></div>`;
+          if(item.content)
+            card += `<section class="notice-content">${item.content}</section>`;
+          card += `</div>`;
+        });
+        card += '</main>';
+        return card;
+    }
     function formatDate(d){
-        let months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
-        let year=d.slice(0,4);
-        let m=months[d.slice(5,7)-1];
-        let date=d.slice(8,10);
-        return(date+' '+m+' '+year);
+        if(d){
+          let d_obj=new Date();
+          d_obj.setDate(d.slice(8,10));
+          d_obj.setMonth(d.slice(5,7)-1);
+          d_obj.setFullYear(d.slice(0,4));
+          return(d_obj.toDateString());
+        }
     }
   </script>
 </body>
