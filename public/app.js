@@ -1,11 +1,10 @@
 axios.get('/notice')
 .then(function (response) {
-  console.log(response.data);
+  const element = document.getElementById('data-entry');
+  // console.log(response.data);
   const gazette_res=response.data;
   if(gazette_res['entry']){
     const entry=gazette_res['entry'];
-    // console.log(entry[1].published);
-    const element = document.getElementById('data-entry');
     const htmlString = getCard(entry);
     // Create a new range object & Set the start position of the range to the end of the element
     const range = document.createRange();
@@ -17,6 +16,7 @@ axios.get('/notice')
   }
   else{
     console.error('Error retrieving entries');
+    element.innerHTML='<h2>Error retrieving entries</h2>';
   }
 })
 .catch(function (error) {
@@ -39,10 +39,8 @@ function getCard(entry){
 }
 function formatDate(d){
   if(d){
-    let d_obj=new Date();
-    d_obj.setDate(d.slice(8,10));
-    d_obj.setMonth(d.slice(5,7)-1);
-    d_obj.setFullYear(d.slice(0,4));
-    return(d_obj.toDateString());
+    let d_obj=new Date(d);
+    let d_string=d_obj.toLocaleDateString('en-GB', {day: 'numeric', month:"long", year: 'numeric' });
+    return(d_string);
   }
 }
