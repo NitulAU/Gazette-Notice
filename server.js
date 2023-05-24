@@ -1,34 +1,29 @@
-// server.js
-import http from 'http';
-import fs from 'fs';
-import fetch from 'node-fetch';
-
-const server = http.createServer((req, res) => { // request listener function
-  if (req.url === '/' && req.method === 'GET') {
-    fs.readFile('index.html', (err, data) => {
-      if (err) {
-        res.writeHead(500, {'Content-Type': 'text/plain'});
-        res.end('Internal server error');
-      } else {
-        res.writeHead(200, {'Content-Type': 'text/html'});
-        res.end(data);
-        //it reads the contents of the index.html file and sends it back to the client as an HTML response.
-      }
-    });
-  } else if (req.url === '/notice' && req.method === 'GET') {
-    (async () => {
-      const not = await fetch("https://www.thegazette.co.uk/all-notices/notice/data.json");//asynchronously fetches data from a remote JSON API
-      const noticeData = await not.json();
-      const data = noticeData;
-      res.writeHead(200, {'Content-Type': 'application/json'});
-      res.end(JSON.stringify(data));//sends it back to the client as a JSON response
-    })();
-  } else {
-    res.writeHead(404, {'Content-Type': 'text/plain'});
-    res.end('Not found');
+const express = require('express');
+const path = require('path');
+const PORT = 3000;
+const app = express();
+// Static Middleware
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('/', function (req, res) {
+  res.render('index.ejs');
+})
+//asynchronous request to the remote JSON API and sends the response back to the client as JSON data.
+app.get('/notice', async (req, res) => {
+  try {
+    const noticeData = await fetch('https://www.thegazette.co.uk/all-notices/notice/data.json');
+    res.status(200).json(await noticeData.json());
+  } catch (error) {
+    res.status(500).send('Internal server error');
   }
 });
-
-server.listen(3000, () => {
-  console.log('Server running at http://localhost:3000/');
+//handles any other requests that are not matched by the other routes, and sends a 404 response.
+app.use((req, res) => {
+  res.status(404).send('Sorry, URL not found');
 });
+
+app.listen(PORT, function (err) {
+  if (err) console.log(err);
+  console.log("Server listening on PORT", PORT);
+});
+
+ 

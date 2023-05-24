@@ -1,0 +1,8 @@
+a{
+    font-size: large;
+    font-weight: 700;
+    text-decoration: none;
+    &:hover{
+        cursor: pointer;
+    }
+}

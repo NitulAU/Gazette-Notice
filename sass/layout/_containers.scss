@@ -1,0 +1,20 @@
+.main-container{
+    display: flex;
+    /* flex-wrap: wrap; */
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 3rem;
+    @include respond(phone){
+      margin: 0 2rem;
+    }
+    @include respond(small-screen){
+      margin: 0 1rem;
+    }
+}
+.all-cards{
+    display: flex;
+    flex-wrap: wrap;
+    @include respond(small-screen){
+      min-width: 300px;
+    }
+}

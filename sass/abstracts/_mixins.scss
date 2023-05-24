@@ -1,0 +1,27 @@
+@mixin respond($brk){
+    @if $brk==tab-land{
+        @media (max-width:1200px) {
+            @content;           
+        }
+    }
+    @if $brk==mid-screen{
+        @media (max-width:1000px) {
+            @content;           
+        }
+    }
+    @if $brk==tab-port{
+        @media (max-width:900px) {
+            @content;           
+        }
+    }
+    @if $brk==phone{
+        @media (max-width:600px) {
+            @content;           
+        }
+    }
+    @if $brk==small-screen{
+        @media (max-width:400px) {
+            @content;           
+        }
+    }
+}
