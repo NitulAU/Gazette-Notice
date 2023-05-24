@@ -27,9 +27,17 @@
         }
         &--next{
             padding:10px 30px;
+            // position: absolute;
+            &::after{
+                content: "next>>";
+                position: relative;
+                top: 0;
+                left: 0;
+                width: 100%;
+            }
         }
         &:hover{
-            background-color: $col--primary-grey;
+            background-color: rgba($col-white,0.2);
         }
     }
     @include respond(phone){
